@@ -1,0 +1,557 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #292b2c;
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+.feed {
+    width: 80%;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #ff4d4d;
+}
+
+h2 {
+    color: #ff2d2d;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+.tweet-content {
+    background-color: #444;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ff4d4d;
+}
+.tweet-like {
+    background-color: #444;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ff4d4d;
+}
+
+.tweet-user {
+    color: #ff4d4d;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #292b2c;
+    padding: 10px;
+    border-bottom: 2px solid #ff4d4d;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+#user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    min-width: 160px;
+    z-index: 1;
+    border-radius: 5px;
+    border: 1px solid #ff4d4d;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #444;
+}
+
+.show {
+    display: block;
+}
+
+.login-button {
+    margin-right: 20px;
+}
+
+#login-button {
+    background-color: #ccc;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#login-button:hover {
+    background-color: #999;
+}
+
+.tweet {
+    background-color: #444;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ff4d4d;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+
+.load-button {
+    background-color: #333;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    margin-top: 20px;
+    display: block;
+}
+
+.load-button:hover {
+    background-color: #444;
+}
+.post-form {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#open-post-modal {
+    background-color: #444;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#open-post-modal:hover {
+    background-color: #555;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    background-color: #333;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ff4d4d;
+    width: 50%;
+    color: white;
+}
+
+.close {
+    color: #ff4d4d;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #ff6666;
+}
+
+#post-form {
+    margin-top: 20px;
+}
+
+#post-content {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#post-attachment {
+    margin-bottom: 10px;
+}
+.create-post-button {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+#open-post-modal {
+    background-color: #444;
+    color: rgb(88, 88, 88);
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#open-post-modal:hover {
+    background-color: #555;
+}
+.tweet-user-info {
+    color: #afafaf; /* Dunkleres Grau für die Zeitangabe */
+    font-weight: bold;
+}
+.action-button {
+    background-color: #444;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, border-color 0.3s;
+    margin-top: 10px;
+}
+
+.action-button:hover {
+    background-color: #666;
+    border-color: #ff6666;
+}
+
+/* Neue Stile für das Eingabefeld */
+#post-content {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    background-color: #f2f2f2;
+    color: #333;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+}
+
+#user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Aktualisierte Stile für die Action-Buttons */
+.button-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Stile für den Login-Button */
+#login-button {
+    margin-left: auto; /* Den Button ganz rechts platzieren */
+}
+.file-input-container {
+    margin-top: 10px;
+    position: relative;
+}
+
+.file-label {
+    margin-bottom: 0;
+    background-color: #444;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.selected-files {
+    margin-top: 10px;
+    border: 2px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 10px;
+    display: none;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.selected-file {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.selected-file img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.remove-file-button {
+    background-color: #444;
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.remove-file-button:hover {
+    background-color: #666;
+    border-color: #ff6666;
+}
+.attachments {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 20px;
+}
+
+.image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.image-list img {
+    max-width: 100px;
+    max-height: 100px;
+    cursor: pointer;
+}
+
+.image-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+}
+
+.image-overlay img {
+    max-width: 80%;
+    max-height: 80%;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+}
+.tweet-container {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #444;
+    border: 2px solid #ff4d4d;
+    border-radius: 5px;
+}
+
+.tweet-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ff4d4d;
+}
+
+.tweet-id,
+.tweet-views,
+.tweet-likes {
+    color: #888; /* Dunklerer Text */
+    font-size: 12px; /* Kleinere Schriftgröße */
+    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.like-button {
+    background-color: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 4px 8px; /* Kleinere Abmessungen */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-bottom: 4px;
+    transition: background-color 0.3s;
+}
+
+.like-button:hover {
+    background-color: #ff6666;
+}
+.profile-container {
+    background-color: #292b2c;
+    padding: 20px;
+    border: 1px solid #ff4d4d;
+    border-radius: 10px;
+    margin-top: 50px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Großes Profilbild innerhalb des Containers */
+#profile-picture {
+    width: 101px;
+    height: 101px;
+    border-radius: 50%;
+    border: 2px solid #ff4d4d;
+    float: right;
+    margin-left: 20px;
+    background-color: #444;
+    border: #e42f2f;
+}
+
+/* Kleinere Felder für die einzelnen Punkte */
+.profile-section {
+    display: inline-block;
+    width: calc(33.33% - 10px); /* Aufteilen in 3 Spalten mit Abstand dazwischen */
+    margin-right: 10px;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #444;
+    color: white;
+}
+
+/* Stil für die Anzeige von Beiträgen */
+.user-posts {
+    margin-top: 20px;
+}
+
+/* Stil für Beiträge */
+.user-post {
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #444;
+    color: white;
+}
+
+/* Stil für den Profil-Link */
+.profile-link {
+    color: #ff4d4d;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.profile-link:hover {
+    text-decoration: underline;
+}
+
+/* Neue Stile für das Eingabefeld */
+.follow-button {
+    background-color: #444; /* Dunkelgrau */
+    color: white;
+    border: 1px solid #ff4d4d;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, border-color 0.3s;
+    margin-left: 10px;
+}
+
+.follow-button.following {
+    background-color: #ff4d4d; /* Rot, wenn bereits gefolgt wird */
+    border-color: #ff4d4d;
+}
+
+.follow-button:hover {
+    background-color: #555; /* Dunkleres Grau im Hover-Zustand */
+}
+
+.follow-button.following:hover {
+    background-color: #ff6666; /* Helleres Rot im Hover-Zustand */
+    border-color: #ff6666;
+}
+/* Bild am rechten Rand */
+.profile-img {
+    border-radius: 15%; /* Bild rund machen */
+    float: right;
+    margin-left: 10px;
+    margin-right: 10px; /* Abstand zwischen dem Bild und dem Textinhalt */
+    width: 50px; /* Setze die Breite des Bildes */
+    height: 50px; /* Setze die Höhe des Bildes */
+    object-fit: cover;
+    background-color: #444;
+    border:1px, #ff6666;
+    border: 2px solid #ff6666 /* Skaliere das Bild, um es zu füllen */
+}
+.profile-img-big {
+    border-radius: 15%; /* Bild rund machen */
+    float: right;
+    margin-left: 10px;
+    margin-top: 0px; /* Abstand zwischen dem Bild und dem Textinhalt */
+    width: 350px; /* Setze die Breite des Bildes */
+    height: 350px; /* Setze die Höhe des Bildes */
+    object-fit: fill;
+    background-color: #444;
+    border-color:#ff6666;
+    border: 2px solid #ff6666; /* Skaliere das Bild, um es zu füllen */
+}

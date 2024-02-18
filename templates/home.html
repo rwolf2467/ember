@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Twitter Feed</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+Mehr anzeigen
+message.txt
+23 kB
+﻿
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Twitter Feed</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/canvas-confetti.min.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <div class="user-profile">
+            <img id="user-avatar" src="" alt="Profilbild">
+            <div class="dropdown">
+                <button id="user-dropdown" class="dropbtn">Benutzername</button>
+                <div class="dropdown-content">
+                    <a href="/profile.html?username={{ username }}" , class="user-dropdown">Profil anzeigen</a>
+                    <a href="/logout">Ausloggen</a>
+                </div>
+            </div>
+        </div>
+        <div class="button-container">
+            {% if session.user_data %}
+            <button id="post-button" class="action-button">Neuer Post</button>
+            {% else %}
+            <button id="login-button" class="action-button">Mit Discord einloggen</button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="container">
+        <!-- ... vorheriger Inhalt ... -->
+        <section class="attachments">
+            <div class="image-list">
+                <!-- Hier werden die Bilder dynamisch eingefügt -->
+            </div>
+            <div class="image-overlay">
+                <img src="" alt="Image Overlay">
+                <span class="close">&times;</span>
+            </div>
+        </section>
+    </div>
+
+    <div class="feed">
+        <h1>Ember Feed</h1>
+        <ul id="tweet-list">
+        </ul>
+        <button id="load-button" class="load-button">Neue Posts laden</button>
+    </div>
+    <div id="post-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-post-modal">&times;</span>
+            <h2>Neuer Post</h2>
+            <form id="post-form" method="post" enctype="multipart/form-data" action="/create_post">
+                <textarea id="post-content" name="content" placeholder="Dein Beitrag..." class="post-form"></textarea>
+                <div class="file-input-container">
+                    <input type="file" id="post-attachment" name="attachment" accept="image/*,video/*" multiple
+                        style="display: none;">
+                    <label for="post-attachment" id="file-label" class="action-button file-label">Datei(en)
+                        auswählen</label>
+                    <div id="selected-files" class="selected-files">
+                        <span id="file-name">Keine Datei ausgewählt</span>
+                        <button id="remove-file-button" class="action-button remove-file-button">Entfernen</button>
+                    </div>
+                </div>
+
+                <input type="submit" value="Veröffentlichen" , class="action-button">
+            </form>
+        </div>
+    </div>
+    <div id="reply-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-reply-modal"
+                onclick="window.location.href='http://127.0.0.1:5000/'">&times;</span>
+            <h2>Auf Beitrag antworten</h2>
+            <form id="reply-form" method="post" action="/reply-post">
+                <textarea id="reply-content" name="content" placeholder="Deine Antwort..." class="post-form"></textarea>
+                <!-- Weitere Eingabefelder oder Bedienelemente können hier hinzugefügt werden -->
+                <input type="hidden" id="tweet-id" name="tweet_id" value="">
+                <input type="hidden" id="user-id" name="userid" value="">
+                <input type="hidden" id="username" name="username" value="">
+                <input type="hidden" id="avatar" name="avatar" value="">
+                <input type="hidden" id="attachments" name="attachments" value="">
+                <h2 id="dp">username</h2>
+
+                <input type="submit" value="Veröffentlichen" class="action-button">
+            </form>
+        </div>
+    </div>
+    <script>
+
+
+
+        $('#tweet-list').on('click', '.reply-button', function (event) {
+            var tweetId = $(this).data('tweetid'); // Anpassung: 'tweetid' in Kleinschreibung
+            $('#display').text('Tweet ID: ' + tweetId);
+
+            // Stelle sicher, dass die erforderlichen Informationen verfügbar sind
+            if (!sessionUser) {
+                // Benutzer ist nicht eingeloggt, leite zur Login-Seite weiter
+                window.location.href = '/login';
+                return;
+            }
+
+            var userId = sessionUser.id;
+            var username = sessionUser.username;
+            var avatar = sessionUser.avatar;
+
+            // Fülle die versteckten Eingabefelder im Antwort-Formular
+            $('#tweet-id').val(tweetId);
+            $('#user-id').val(userId);
+            $('#username').val(username);
+            $('#avatar').val(avatar);
+
+            // Öffne das Antwort-Popup
+            openReplyModal();
+        });
+
+        function openReplyModal(tweetId) {
+            var replyModal = $('#reply-modal');
+            replyModal.css('display', 'block');
+        }
+
+        // JavaScript-Code für das Antwort-Formular
+        $('#reply-form').submit(function (event) {
+            event.preventDefault();
+            var tweetId = $('#tweet-id').val();
+            var userId = $('#user-id').val();
+            var username = $('#username').val();
+            var avatar = $('#avatar').val();
+            var replyContent = $('#reply-content').val();
+
+            // Hier können Sie ggf. die Informationen für Anhänge verarbeiten
+            var attachments = "";
+
+            // Sende die Antwort an den Server (Anfrage an /reply-post)
+            $.ajax({
+                url: "/reply-post",
+                method: 'POST',
+                data: JSON.stringify({
+                    "tweet_id": tweetId,
+                    "userid": userId,
+                    "username": username,
+                    "avatar": avatar,
+                    "content": replyContent,
+                    "attachments": attachments
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        // Antwort erfolgreich veröffentlicht, leite zur Post-Seite weiter
+                        window.location.href = '/post/' + tweetId;
+                    }
+                }
+            });
+
+            // Antwort-Popup schließen
+            $('#reply-modal').css('display', 'none');
+        });
+
+
+        function updateSelectedFilesDisplay(fileList) {
+            var selectedFilesContainer = $('#selected-files');
+            selectedFilesContainer.empty();
+
+            if (fileList.length > 0) {
+                selectedFilesContainer.show();
+
+                for (var i = 0; i < fileList.length; i++) {
+                    var file = fileList[i];
+                    var fileName = file.name;
+                    var filePreview = URL.createObjectURL(file);
+
+                    var selectedFileDiv = $('<div>').addClass('selected-file');
+                    var fileImage = $('<img>').attr('src', filePreview).attr('alt', 'Ausgewählte Datei');
+                    var fileNameSpan = $('<span>').text(fileName);
+
+                    selectedFileDiv.append(fileImage, fileNameSpan);
+                    selectedFilesContainer.append(selectedFileDiv);
+                }
+
+                $('#file-label').hide();
+            } else {
+                selectedFilesContainer.hide();
+                $('#file-label').show();
+            }
+        }
+
+        // ... Weiterer JavaScript-Code ...
+
+        // Eingabefeld für die Dateiauswahl ändern
+        $('#post-attachment').change(function () {
+            var files = $(this)[0].files;
+            updateSelectedFilesDisplay(files);
+        });
+        function fetchUserData() {
+            $.ajax({
+                url: '/get_user_data',
+                method: 'GET',
+                success: function (data) {
+                    if (data.username) {
+                        localStorage.setItem('emberuname', data.username)
+                        localStorage.setItem('emberuid', data.id)
+                        localStorage.setItem('emberuavatar', data.avatar)
+
+                        $('#user-dropdown').text(data.username);
+                        $('.login-button').hide();
+                        $('.action-button#post-button').show(); // Post-Button anzeigen
+                        $('#user-dropdown').on('click', function () {
+                            $('.dropdown-content').toggleClass('show');
+
+                        });
+                    } else {
+                        $('#user-dropdown').hide();
+                        $('.action-button').hide(); // Alle Action-Buttons verstecken
+                        $('.action-button#login-button').show(); // Login-Button anzeigen
+                    }
+                    if (data.avatar) {
+                        $('#user-avatar').attr('src', 'https://cdn.discordapp.com/avatars/' + data.id + '/' + data.avatar + '.png')
+                         emberavatar = document.getElementById('user-avatar').value;
+                         localStorage.setItem('avatar', emberavatar)
+                    }
+                }
+            });
+        }
+
+
+        function fetchTweets() {
+            $.ajax({
+                url: '/get_posts',
+                method: 'GET',
+                success: function (data) {
+                    var tweetList = $('#tweet-list');
+                    tweetList.empty();
+
+                    data.tweets.forEach(function (tweet) {
+                        var listItem = $('<li>').addClass('tweet');
+                        var profileImg = $('<img>').addClass('profile-img').attr('src', tweet.author_avatar).attr('alt', 'Profilbild');
+
+                        if (tweet.author_name === 'SYSTEM') {
+                            profileImg.attr('src', '/static/system_avatar.png');
+                        } else if (tweet.author_name === 'UNKNOWN' || tweet.author_avatar === 'default_avatar.png' || !tweet.author_avatar) {
+                            profileImg.attr('src', '/static/default_avatar.png');
+                        }
+
+                        var idIcon = $('<i>').addClass('fa fa-hashtag');
+                        var viewsIcon = $('<i>').addClass('fa fa-eye');
+                        var likeIcon = $('<i>').addClass('fa fa-heart');
+                        var replyIcon = $('<i>').addClass('fa fa-reply');
+                        var quoteIcon = $('<i>').addClass('fa-solid fa-quote-left fa-bounce');
+
+                        var contentDiv = $('<div>').addClass('tweet-content');
+                        var message = $('<div>').addClass('tweet-message').text(tweet.content);
+                        var userInfo = $('<div>').addClass('tweet-user-info');
+                        var userName = $('<span>').addClass('tweet-user').text(tweet.author_name);
+                        var time = $('<span>').addClass('tweet-time').text(tweet.created);
+
+                        var attachments = '';
+                        if (tweet.attachments && tweet.attachments.length > 0) {
+                            attachments = 'Attachments: ' + tweet.attachments.join(', ');
+                        }
+
+                        userInfo.append(userName, " - ", time);
+                        contentDiv.append(message);
+
+                        var detailsContainer = $('<div>').addClass('tweet-details');
+                        var idSpan = $('<span>').addClass('tweet-id').append(idIcon, ' ' + tweet.id);
+                        var viewsSpan = $('<span>').addClass('tweet-views').append(viewsIcon, ' ' + tweet.views);
+                        var likeButton = $('<button>').addClass('action-button like-button').attr('id', 'buttonlk').append(likeIcon, ' Like (' + tweet.likes + ')');
+
+                        likeButton.data('tweetId', tweet.id);
+                        likeButton.click(function () {
+                            $.ajax({
+                                url: '/get_user_data',
+                                method: 'GET',
+                                success: function (data) {
+                                    if (data.username) {
+                                        likeTweet(likeButton.data('tweetId'), data.username);
+                                    } else {
+                                        window.location.href = '/login';
+                                    }
+                                }
+                            });
+                        });
+
+                        var replyButton = $('<button>').addClass('action-button like-button').append(replyIcon, ' Antworten');
+                        var quoteButton = $('<button>').addClass('action-button like-button').append(quoteIcon, ' Zitieren').attr('onclick', 'alertTweetId()');;
+
+                        replyButton.data('tweetId', tweet.id);
+                        replyButton.click(function () {
+                            openReplyModal(tweet.id);
+                        });
+
+                        quoteButton.data('tweetId', tweet.id);
+                        quoteButton.click(function () {
+                            openReplyModal(tweet.id);
+                        });
+
+                        detailsContainer.append(idSpan, viewsSpan, replyButton, quoteButton, likeButton);
+
+                        var tweetContainer = $('<div>').addClass('tweet-container');
+                        tweetContainer.append(profileImg, userInfo, contentDiv, detailsContainer);
+
+                        tweetList.append(tweetContainer);
+                    });
+                }
+            });
+        }
+
+
+
+        function likeTweet(tweetId, username) {
+            $.ajax({
+                url: '/like_post',
+                method: 'POST',
+                data: JSON.stringify({ tweet_id: tweetId, username: username }),
+
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        var likeButton = $('.like-button[data-tweet-id="' + tweetId + '"]');
+                        var likeCountSpan = likeButton.siblings('.tweet-likes');
+                        var likeCount = parseInt(likeCountSpan.text().split(':')[1].trim()) + 1;
+
+                        // Change the button text to indicate that the tweet has been liked
+                        likeButton.text('Liked (' + likeCount + ')');
+
+                        // Update the number of likes
+                        likeCountSpan.text('Likes: ' + likeCount);
+
+                        likeButton.prop('disabled', true);  // Disable the button to prevent multiple likes
+
+                        // Make confetti rain
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 }
+                        });
+                    } else {
+                        console.error('Like was not successful:', response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error liking tweet:', error);
+                }
+            });
+        }
+
+        function alertTweetId(tweetId) {
+            alert("Tweet ID: " + tweetId);
+        }
+
+
+
+        $('#post-form').submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                success: function () {
+                    $('#post-modal').css('display', 'none');
+                    // Hier können Sie ggf. andere Aktionen ausführen
+                }
+            });
+        });
+
+        // Klickereignis für den Post-Button
+        $('#post-button').click(function () {
+            $('#post-modal').css('display', 'block');
+        });
+
+        // Klickereignis für das Schließen des Post-Modals
+        $('#close-post-modal').click(function () {
+            $('#post-modal').css('display', 'none');
+        });
+
+        // Funktionen beim Seitenstart aufrufen
+        fetchUserData();
+        fetchTweets();
+
+        $('#login-button').click(function () {
+            window.location.href = '/login';
+        });
+
+        $('#load-button').click(function () {
+            fetchTweets();
+        });
+        const imageList = document.querySelector('.image-list');
+        const imageOverlay = document.querySelector('.image-overlay');
+        const overlayImage = imageOverlay.querySelector('img');
+        const closeOverlay = imageOverlay.querySelector('.close');
+
+        // API-URL anpassen
+        const apiUrl = 'URL_ZUR_IHRER_API';
+
+        // Funktion zum Abrufen der Bilder von der API
+        async function fetchImages() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                data.images.forEach(imagePath => {
+                    const img = document.createElement('img');
+                    img.src = imagePath;
+                    img.alt = 'Attachment';
+                    img.addEventListener('click', () => openOverlay(imagePath));
+                    imageList.appendChild(img);
+                });
+            } catch (error) {
+                console.error('Error fetching images:', error);
+            }
+        }
+
+        // Overlay öffnen
+        function openOverlay(imagePath) {
+            overlayImage.src = imagePath;
+            imageOverlay.style.display = 'flex';
+        }
+
+        // Overlay schließen
+        closeOverlay.addEventListener('click', () => {
+            imageOverlay.style.display = 'none';
+        });
+
+        // Bilder von API abrufen
+        fetchImages();
+        $('#tweet-list').on('click', '.tweet-user', function () {
+            var username = $(this).text();
+            window.location.href = 'profile.html?username=' + username;
+        });
+
+        // JavaScript-Code für das Antwort-Formular und den Antwort-Button
+        $('#tweet-list').on('click', '.reply-button', function () {
+            var tweetId = $(this).data('tweetId');
+
+            // Fülle das Antwort-Formular im Popup mit den Benutzerinformationen
+            $('#reply-tweet-id').val(tweetId); // Verstecktes Feld im Antwort-Formular
+
+            // Öffne das Antwort-Popup
+            openReplyModal();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const replyForm = document.getElementById("reply-form");
+            const replyButton = replyForm.querySelector(".action-button");
+            const replyContent = document.getElementById("reply-content");
+            const tweetIdInput = document.getElementById("tweet-id");
+            const userIdInput = document.getElementById("user-id");
+            const usernameInput = document.getElementById("username");
+            const avatarInput = document.getElementById("avatar");
+            const attachmentsInput = document.getElementById("attachments");
+            const modalCloseButton = document.getElementById("close-reply-modal");
+
+            replyForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(replyForm);
+                const data = {};
+
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+
+                try {
+                    const response = await fetch("/reply-post", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        console.log(responseData.success); // Anzeigen des Erfolgswerts
+                        // Weitere Aktionen nach erfolgreicher Veröffentlichung hier durchführen
+
+                        replyContent.value = "";
+                        tweetIdInput.value = "";
+                        userIdInput.value = "";
+                        usernameInput.value = "";
+                        avatarInput.value = "";
+                        attachmentsInput.value = "";
+                    } else {
+                        console.error("Veröffentlichen fehlgeschlagen");
+                    }
+                } catch (error) {
+                    console.error("Veröffentlichen fehlgeschlagen", error);
+                }
+            });
+
+            modalCloseButton.addEventListener("click", function () {
+                // Hier kannst du Code hinzufügen, um das Antwort-Modal zu schließen
+            });
+        });
+
+
+        window.onload = function(){
+            document.getElementById('username').textContent = localStorage.getItem('emberuname')
+            document.getElementById('user-id').textContent = localStorage.getItem('emberuid')
+            document.getElementById('avatar').textContent = localStorage.getItem('emberuavatar')
+        }
+
+
+
+    </script>
+</body>
+
+</html>

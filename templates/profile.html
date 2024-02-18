@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Profilbild positionieren und abgerundete Ecken hinzufügen */
+        .profile-picture-top {
+            position: absolute;
+            top: 30px;
+            right: 15px;
+            border-radius: 50%; /* Abgerundete Ecken */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="user-profile">
+            <img id="user-avatar" src="" alt="Profilbild">
+            <div class="dropdown">
+                <button id="user-dropdown" class="dropbtn">Benutzername</button>
+                <div class="dropdown-content">
+                    <a href="/profile.html?username={{ user.username }}">Profil anzeigen</a>
+                    <a href="/logout">Ausloggen</a>
+                </div>
+            </div>
+        </div>
+        <div class="button-container">
+            {% if session.user_data %}
+                <button id="post-button" class="action-button">Neuer Post</button>
+            {% else %}
+                <button id="login-button" class="action-button">Mit Discord einloggen</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <img id="profile-picture-top" src="https://cdn.discordapp.com/avatars/{{ profileid }}/{{ avatarhash }}.png" alt="Profilbild" class="profile-img-big">
+
+        <div class="user-info">
+            <h2>{{ user.username }}</h2>
+            <div class="button-container">
+                <form method="post" action="/follow">
+                    <input type="hidden" name="followed_username" value="{{ user.username }}">
+                    <button id="follow-button" class="follow-button{% if isFollowing %} following{% endif %}">
+                        {% if isFollowing %}Gefolgt{% else %}Folgen{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        
+        
+
+
+        <div class="profile-section">
+            <h2>Number of Posts</h2>
+            <p>{{ user.numberposts }}</p>
+        </div>
+
+        <div class="profile-section">
+            <h2>Followers</h2>
+            <p>{{ user.followers }}</p>
+        </div>
+
+        <div class="profile-section">
+            <h2>Following</h2>
+            <p>{{ user.following }}</p>
+        </div>
+        
+        <div class="user-posts">
+            <h2>User Posts</h2>
+            <ul class="tweet-list">
+                {% for post in user.userposts %}
+                    <li class="user-post">
+                        <div class="tweet">
+                            <img class="profile-img" src="https://cdn.discordapp.com/avatars/{{ profileid }}/{{ avatarhash }}.png" alt="Profilbild">
+                            <div class="tweet-content">
+                                <div class="tweet-user-info">
+                                    <div class="tweet-user">{{ post.author_name }}</div>
+                                    <span class="tweet-time">{{ post.created }}</span>
+                                </div>
+                                <div class="tweet-message">{{ post.content }}</div>
+                                {% if post.attachments %}
+                                    <div class="tweet-attachments">
+                                        Attachments: {{ post.attachments|join(', ') }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="tweet-details">
+                            <span class="tweet-views">Views: {{ post.views }}</span>
+                            <span class="tweet-likes">Likes: {{ post.likes }}</span>
+                            <button class="action-button like-button" data-post-id="{{ post.id }}">Like ({{ post.likes }})</button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+    <div id="post-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-post-modal">&times;</span>
+            <h2>Neuer Post</h2>
+            <form id="post-form" method="post" enctype="multipart/form-data" action="/create_post">
+                <textarea id="post-content" name="content" placeholder="Dein Beitrag..."class="post-form"></textarea>
+                <div class="file-input-container">
+                    <input type="file" id="post-attachment" name="attachment" accept="image/*,video/*" multiple style="display: none;">
+                    <label for="post-attachment" id="file-label" class="action-button file-label">Datei(en) auswählen</label>
+                    <div id="selected-files" class="selected-files">
+                        <span id="file-name">Keine Datei ausgewählt</span>
+                        <button id="remove-file-button" class="action-button remove-file-button">Entfernen</button>
+                    </div>
+                </div>
+
+                <input type="submit" value="Veröffentlichen", class="action-button">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Fetch user posts and display them in the profile
+            function fetchUserPosts() {
+                $.ajax({
+                    url: '/get_user_posts', // Update with the appropriate route in your Flask app
+                    method: 'GET',
+                    success: function(data) {
+                        var userPostsList = $('.user-posts ul');
+                        userPostsList.empty();
+
+                        data.posts.forEach(function(post) {
+                            var listItem = $('<li>').addClass('user-post');
+                            var profileImg = $('<img>').addClass('profile-img').attr('src', 'https://cdn.discordapp.com/avatars/' + post.author_id + '/' + profile_avatar + '.png').attr('alt', 'Profilbild');
+
+                            var contentDiv = $('<div>').addClass('tweet-content');
+                            var userInfo = $('<div>').addClass('tweet-user-info');
+                            var userName = $('<div>').addClass('tweet-user').text(post.author_name);
+                            var time = $('<span>').addClass('tweet-time').text(post.created);
+
+                            var attachments = '';
+                            if (post.attachments && post.attachments.length > 0) {
+                                attachments = 'Attachments: ' + post.attachments.join(', ');
+                            }
+
+                            userInfo.append(userName, ' - ', time);
+                            contentDiv.append(post.content, attachments);
+
+                            var tweetContainer = $('<div>').addClass('tweet-container');
+                            tweetContainer.append(profileImg, contentDiv);
+
+                            listItem.append(tweetContainer);
+                            userPostsList.append(listItem);
+                        });
+                    }
+                });
+            }
+
+            // Function to like a post
+            function likePost(postId) {
+                $.ajax({
+                    url: '/like_post', // Update with the appropriate route in your Flask app
+                    method: 'POST',
+                    data: JSON.stringify({ post_id: postId }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            var likeButton = $('.like-button[data-post-id="' + postId + '"]');
+                            var likeCountSpan = likeButton.siblings('.tweet-likes');
+                            var likeCount = parseInt(likeCountSpan.text().split(':')[1].trim());
+                            likeCount++;
+                            likeCountSpan.text('Likes: ' + likeCount);
+
+                            // Disable the like button after liking
+                            likeButton.prop('disabled', true);
+                        }
+                    }
+                });
+            }
+
+            // Call the fetchUserPosts function to display user posts on page load
+            fetchUserPosts();
+
+            // Attach click event handler to like buttons
+            $('.like-button').click(function() {
+                likePost($(this).data('post-id'));
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+                const followButton = document.getElementById("follow-button");
+                const followedText = "Gefolgt";
+
+                followButton.addEventListener("click", async function(event) {
+                    event.preventDefault();
+
+                    const formData = new FormData();
+                    formData.append("followed_username", "{{ user.username }}");
+
+                    try {
+                        const response = await fetch("/follow", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            followButton.textContent = followedText;
+                            followButton.style.backgroundColor = "red";
+                            followButton.disabled = true;
+                        } else {
+                            console.error("Folgen fehlgeschlagen");
+                        }
+                    } catch (error) {
+                        console.error("Folgen fehlgeschlagen", error);
+                    }
+                });
+            });
+            // ... Ihr vorhandener JavaScript-Code ...
+            $('#post-button').click(function() {
+                    $('#post-modal').css('display', 'block');
+                });
+            $('#login-button').click(function() {
+                    window.location.href = '/login';
+                });
+
+            function fetchUserData() {
+                $.ajax({
+                    url: '/get_user_data',
+                    method: 'GET',
+                    success: function(data) {
+                        if (data.username) {
+                            $('#user-dropdown').text(data.username);
+                            $("#button_username").text(data.username)
+                            $('.login-button').hide();
+                            $('.action-button#post-button').show();
+                            $('#user-dropdown').on('click', function() {
+                                $('.dropdown-content').toggleClass('show');
+                            });
+
+                            // Speichern von Benutzerdaten und Avatar-Hash in Cookies
+                            Cookies.set('username', data.username);
+                            Cookies.set('userid', data.id)
+                            Cookies.set('avatar', data.avatar);
+                            Cookies.set('avatarHash', data.avatar_hash); // Hier den Avatar-Hash hinzufügen
+                        } else {
+                            $('#user-dropdown').hide();
+                            $('.action-button').hide();
+                            $('.action-button#login-button').show();
+                        }
+                    }
+                });
+            }
+
+            // ... Ihr vorhandener JavaScript-Code ...
+
+            // Funktionen beim Seitenstart aufrufen
+            fetchUserData();
+
+    // ... Ihr vorhandener JavaScript-Code ...
+            function fetchUserData() {
+                        $.ajax({
+                            url: '/get_user_data',
+                            method: 'GET',
+                            success: function(data) {
+                                if (data.username) {
+                                    $('#user-dropdown').text(data.username);
+                                    $('.login-button').hide();
+                                    $('.action-button#post-button').show(); // Post-Button anzeigen
+                                    $('#user-dropdown').on('click', function() {
+                                        $('.dropdown-content').toggleClass('show');
+                                    });
+                                } else {
+                                    $('#user-dropdown').hide();
+                                    $('.action-button').hide(); // Alle Action-Buttons verstecken
+                                    $('.action-button#login-button').show(); // Login-Button anzeigen
+                                }
+                                if (data.avatar) {
+                                    $('#user-avatar').attr('src', 'https://cdn.discordapp.com/avatars/' + data.id + '/' + data.avatar + '.png');
+                                }
+                            }
+                        });
+                    }
+                    
+    </script>
+</body>
+</html>
